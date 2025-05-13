@@ -42,6 +42,8 @@ shared_ptr<Node> program;
 %token RPAREN
 %token LBRACE
 %token RBRACE
+%token RBRACK
+%token LBRACK
 %token ASSIGN
 %token ID
 %token NUM
@@ -66,7 +68,7 @@ shared_ptr<Node> program;
 %left B_ADD B_SUB
 %left B_MUL B_DIV
 %right NOT
-%left LPAREN RPAREN LBRACE RBRACE
+%left LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK
 
 
 %nonassoc ELSE
@@ -114,6 +116,8 @@ Statement: LBRACE Statements RBRACE { $$ = $2; }
          | Type ID SC { $$ = make_shared<ast::VarDecl>(dynamic_pointer_cast<ast::ID>($2), dynamic_pointer_cast<ast::Type>($1)); }
          | Type ID ASSIGN Exp SC { $$ = make_shared<ast::VarDecl>(dynamic_pointer_cast<ast::ID>($2), dynamic_pointer_cast<ast::Type>($1), dynamic_pointer_cast<ast::Exp>($4)); }
          | ID ASSIGN Exp SC { $$ = make_shared<ast::Assign>(dynamic_pointer_cast<ast::ID>($1), dynamic_pointer_cast<ast::Exp>($3)); }
+         | ID LBRACK Exp RBRACK ASSIGN Exp SC { $$ = make_shared<ast::ArrayAssign>( dynamic_pointer_cast<ast::ID>($1), dynamic_pointer_cast<ast::Exp>($3), dynamic_pointer_cast<ast::Exp>($6) ); }
+         | Type ID LBRACK Exp RBRACK SC { $$ = make_shared<ast::ArrayDecl>( dynamic_pointer_cast<ast::ID>($2), dynamic_pointer_cast<ast::Type>($1), dynamic_pointer_cast<ast::Exp>($4) ); }
          | Call SC { $$ = $1; }
          | RETURN SC { $$ = make_shared<ast::Return>(); }
          | RETURN Exp SC { $$ = make_shared<ast::Return>(dynamic_pointer_cast<ast::Exp>($2)); }
@@ -144,6 +148,8 @@ Type: INT { $$ = make_shared<ast::Type>(ast::BuiltInType::INT); }
 Exp: LPAREN Exp RPAREN { $$ = $2; }
         | Exp B_ADD Exp { 
             $$ = make_shared<ast::BinOp>(dynamic_pointer_cast<ast::Exp>($1), dynamic_pointer_cast<ast::Exp>($3), ast::BinOpType::ADD); }
+        | ID LBRACK Exp RBRACK {
+            $$ = make_shared<ast::ArrayAccess>( dynamic_pointer_cast<ast::ID>($1), dynamic_pointer_cast<ast::Exp>($3) ); }
         | Exp B_SUB Exp { 
             $$ = make_shared<ast::BinOp>(dynamic_pointer_cast<ast::Exp>($1), dynamic_pointer_cast<ast::Exp>($3), ast::BinOpType::SUB); }
         | Exp B_MUL Exp { 

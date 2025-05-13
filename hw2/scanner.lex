@@ -45,6 +45,8 @@ pattern_of_comment               \/\/[^\r\n]*[\r|\n|\r\n]?
 ")"                             { return RPAREN; }
 "{"                             { return LBRACE; }
 "}"                             { return RBRACE; }
+"]"                             { return RBRACK; }
+"["                             { return LBRACK; }
 "="                             { return ASSIGN; }
 "=="                            { return R_EQ; }  
 "!="                            { return R_NE; } 
